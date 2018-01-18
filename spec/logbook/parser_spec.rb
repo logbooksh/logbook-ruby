@@ -1,11 +1,45 @@
 require "spec_helper"
+require "parslet/convenience"
 
 RSpec.describe Logbook::Parser do
   it "has a version number" do
     expect(Logbook::Parser::VERSION).not_to be nil
   end
 
-  it "does something useful" do
-    expect(false).to eq(true)
+  it "parses properties" do
+    expected_properties = [{property: {name: "Name", value: "Value"}}]
+    expect(Logbook::Parser.new.parse("[Name: Value]")).to eq(expected_properties)
+  end
+
+  it "parses log entries" do
+    logbook = <<~LOG
+    [12:10]
+
+    This is my note.
+
+    [12:12]
+
+    This is another note.
+    LOG
+
+    expected_entries = [
+      {log_entry: {time: "12:10", note: "\nThis is my note.\n\n"}},
+      {log_entry: {time: "12:12", note: "\nThis is another note.\n"}},
+    ]
+    expect(Logbook::Parser.new.parse_with_debug(logbook)).to eq(expected_entries)
+  end
+
+  it "ignores free text" do
+    logbook = <<~LOG
+    This text will be ignored.
+
+    [12:10]
+    This is my note.
+    LOG
+
+    expected_entries = [
+      {log_entry: {time: "12:10", note: "This is my note.\n"}}
+    ]
+    expect(Logbook::Parser.new.parse_with_debug(logbook)).to eq(expected_entries)
   end
 end
