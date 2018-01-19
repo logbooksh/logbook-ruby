@@ -2,8 +2,6 @@ require "parslet"
 
 module Logbook
   class Parser < Parslet::Parser
-    VERSION = "0.1.0"
-
     rule(:space) { match["\t "] }
     rule(:whitespace) { space.repeat }
     rule(:newline) { match("\n") }

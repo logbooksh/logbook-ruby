@@ -2,10 +2,6 @@ require "spec_helper"
 require "parslet/convenience"
 
 RSpec.describe Logbook::Parser do
-  it "has a version number" do
-    expect(Logbook::Parser::VERSION).not_to be nil
-  end
-
   it "parses properties" do
     expected_properties = [{property: {name: "Name", value: "Value"}}]
     expect(Logbook::Parser.new.parse("[Name: Value]")).to eq(expected_properties)

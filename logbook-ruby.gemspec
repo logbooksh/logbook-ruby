@@ -1,16 +1,16 @@
 # coding: utf-8
 lib = File.expand_path("../lib", __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require "logbook/parser"
+require "logbook"
 
 Gem::Specification.new do |spec|
-  spec.name          = "logbook-parser"
-  spec.version       = Logbook::Parser::VERSION
+  spec.name          = "logbook-ruby"
+  spec.version       = Logbook::VERSION
   spec.authors       = ["Gabriel Malkas"]
   spec.email         = ["gabriel.malkas@gmail.com"]
 
-  spec.summary       = "Parser library for the Logbook file format"
-  spec.description   = "Parser library for the Logbook file format"
+  spec.summary       = "Ruby library for the Logbook file format"
+  spec.description   = "Ruby library for the Logbook file format"
   spec.homepage      = "https://www.logbook.sh"
 
   spec.files         = `git ls-files -z`.split("\x0").reject do |f|
