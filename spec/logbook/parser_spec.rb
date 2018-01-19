@@ -29,6 +29,35 @@ RSpec.describe Logbook::Parser do
     expect(Logbook::Parser.new.parse_with_debug(logbook)).to eq(expected_entries)
   end
 
+  it "parses task entries" do
+    logbook = <<~LOG
+    [12:10] [Start] My task
+            [ID: uuid-1234] [Jira: LGBK-123]
+            [Parent: uuid-2345]
+
+    This is my note.
+    LOG
+
+    properties = [
+      {name:  "ID", value: "uuid-1234"},
+      {name: "Jira", value: "LGBK-123"},
+      {name:  "Parent", value: "uuid-2345"}
+    ]
+
+    expected_entries = [
+      {
+        task_entry: {
+          time: "12:10",
+          status: "Start",
+          title: "My task",
+          properties: properties,
+          note: "This is my note.\n"
+        }
+      }
+    ]
+    expect(Logbook::Parser.new.parse_with_debug(logbook)).to eq(expected_entries)
+  end
+
   it "ignores free text" do
     logbook = <<~LOG
     This text will be ignored.
