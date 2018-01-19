@@ -66,6 +66,7 @@ RSpec.describe Logbook::Parser do
     This is my note.
 
     [ToDo] My other task
+           #my-tag
 
     Another note.
     LOG
@@ -88,7 +89,7 @@ RSpec.describe Logbook::Parser do
         task_definition: {
           status: "ToDo",
           title: "My other task",
-          properties: [],
+          properties: [{tag: "my-tag"}],
           note: "Another note.\n"
         }
       }
