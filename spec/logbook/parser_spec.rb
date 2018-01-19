@@ -22,6 +22,7 @@ RSpec.describe Logbook::Parser do
       {log_entry: {time: "12:10", note: "\nThis is my note.\n\n"}},
       {log_entry: {time: "12:12", note: "\nThis is another note.\n"}},
     ]
+
     expect(Logbook::Parser.new.parse_with_debug(logbook)).to eq(expected_entries)
   end
 
@@ -51,10 +52,52 @@ RSpec.describe Logbook::Parser do
         }
       }
     ]
+
     expect(Logbook::Parser.new.parse_with_debug(logbook)).to eq(expected_entries)
   end
 
-  it "ignores free text" do
+  it "parses task definitions" do
+    logbook = <<~LOG
+    [ToDo] My task
+
+           [ID: uuid-1234]
+           [Jira: LGBK-123]
+
+    This is my note.
+
+    [ToDo] My other task
+
+    Another note.
+    LOG
+
+    properties = [
+      {name:  "ID", value: "uuid-1234"},
+      {name: "Jira", value: "LGBK-123"}
+    ]
+
+    expected_definitions = [
+      {
+        task_definition: {
+          status: "ToDo",
+          title: "My task",
+          properties: properties,
+          note: "This is my note.\n\n"
+        }
+      },
+      {
+        task_definition: {
+          status: "ToDo",
+          title: "My other task",
+          properties: [],
+          note: "Another note.\n"
+        }
+      }
+    ]
+
+    expect(Logbook::Parser.new.parse_with_debug(logbook)).to eq(expected_definitions)
+  end
+
+  it "ignores unrelated text" do
     logbook = <<~LOG
     This text will be ignored.
 
@@ -62,9 +105,8 @@ RSpec.describe Logbook::Parser do
     This is my note.
     LOG
 
-    expected_entries = [
-      {log_entry: {time: "12:10", note: "This is my note.\n"}}
-    ]
-    expect(Logbook::Parser.new.parse_with_debug(logbook)).to eq(expected_entries)
+    expected_entry = {log_entry: {time: "12:10", note: "This is my note.\n"}}
+
+    expect(Logbook::Parser.new.parse_with_debug(logbook)).to eq([expected_entry])
   end
 end
