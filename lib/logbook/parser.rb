@@ -13,13 +13,13 @@ module Logbook
     rule(:property_value) { match("[^\\n\\]\\[]").repeat(1) }
     rule(:property) { whitespace >> str("[") >> label.as(:name) >> str(":") >> whitespace >> property_value.as(:value) >> str("]") >> whitespace >> newline.maybe }
     rule(:tag) { whitespace >> str("#") >> label.as(:tag) >> whitespace >> newline.maybe }
-    rule(:property_or_tag_list) { (property | tag).repeat }
+    rule(:property_or_tag_list) { (property.as(:property) | tag).repeat }
 
     rule(:time) { str("[") >> (match["0-9"].repeat(2, 2) >> str(":") >> match["0-9"].repeat(2, 2)).as(:time) >> str("]") }
     rule(:status) { str("[") >> label.as(:status) >> str("]") }
     rule(:title) { text.repeat }
 
-    rule(:note_line) { time.absent? >> status.absent? >> text_line }
+    rule(:note_line) { time.absent? >> status.absent? >> property.absent? >> text_line }
     rule(:note) { note_line.repeat }
 
     rule(:log_entry) { time >> whitespace >> newline.maybe >> note.as(:note) }
@@ -40,7 +40,7 @@ module Logbook
         note.as(:note)
     end
 
-    rule(:logbook) do
+    rule(:page) do
       (
         task_definition.as(:task_definition) |
         task_entry.as(:task_entry) |
@@ -50,6 +50,6 @@ module Logbook
       ).repeat
     end
 
-    root :logbook
+    root :page
   end
 end

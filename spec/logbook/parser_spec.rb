@@ -36,9 +36,9 @@ RSpec.describe Logbook::Parser do
     LOG
 
     properties = [
-      {name:  "ID", value: "uuid-1234"},
-      {name: "Jira", value: "LGBK-123"},
-      {name:  "Parent", value: "uuid-2345"}
+      {property: {name:  "ID", value: "uuid-1234"}},
+      {property: {name: "Jira", value: "LGBK-123"}},
+      {property: {name:  "Parent", value: "uuid-2345"}}
     ]
 
     expected_entries = [
@@ -72,8 +72,8 @@ RSpec.describe Logbook::Parser do
     LOG
 
     properties = [
-      {name:  "ID", value: "uuid-1234"},
-      {name: "Jira", value: "LGBK-123"}
+      {property: {name:  "ID", value: "uuid-1234"}},
+      {property: {name: "Jira", value: "LGBK-123"}}
     ]
 
     expected_definitions = [
@@ -96,6 +96,29 @@ RSpec.describe Logbook::Parser do
     ]
 
     expect(Logbook::Parser.new.parse_with_debug(logbook)).to eq(expected_definitions)
+  end
+
+  it "allows properties in between task entries" do
+    logbook = <<~LOG
+    [ToDo] My task
+
+           [ID: uuid-1234]
+           [Jira: LGBK-123]
+
+    This is my note.
+
+    [Release: 2.0]
+
+    [ToDo] My other task
+           #my-tag
+
+    Another note.
+    LOG
+
+    expected_property = {property: {name:  "Release", value: "2.0"}}
+
+    _, parsed_property, _ = Logbook::Parser.new.parse_with_debug(logbook)
+    expect(parsed_property).to eq(expected_property)
   end
 
   it "ignores unrelated text" do
