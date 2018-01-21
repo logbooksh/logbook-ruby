@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require "logbook"
 
 Gem::Specification.new do |spec|
-  spec.name          = "logbook-ruby"
+  spec.name          = "logbook"
   spec.version       = Logbook::VERSION
   spec.authors       = ["Gabriel Malkas"]
   spec.email         = ["gabriel.malkas@gmail.com"]
