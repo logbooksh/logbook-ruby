@@ -1,12 +1,8 @@
-require "date"
-
 module Logbook
-  class TaskEntry < Struct.new(:line_number, :time, :title, :status, :properties, :tags, :note)
+  class LogEntry < Struct.new(:line_number, :time, :note)
     DATE_PROPERTY_NAME = "Date"
 
-    def merge_page_properties(properties)
-      self.properties = properties.merge(self.properties)
-    end
+    attr_accessor :properties
 
     def recorded_at
       date = self.properties[DATE_PROPERTY_NAME]
@@ -17,7 +13,7 @@ module Logbook
     end
 
     def starts_clock?
-      [Task::START, Task::RESUME, Task::REOPEN].include?(self.status)
+      false
     end
 
     def stops_clock?

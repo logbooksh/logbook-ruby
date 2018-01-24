@@ -47,6 +47,7 @@ module Logbook
           page.add(entry_or_property)
           page
         when LogEntry
+          entry_or_property.properties = current_properties.dup
           page.add(entry_or_property)
           page
         else

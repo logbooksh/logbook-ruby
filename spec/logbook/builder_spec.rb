@@ -77,5 +77,9 @@ RSpec.describe Logbook::Builder do
     it "keeps the task properties over the page properties" do
       expect(task_entry.properties["Release"]).to eq("2.0")
     end
+
+    it "computes the recorded date and time of each entry" do
+      expect(task_entry.recorded_at).to eq(DateTime.parse("2018-01-20 12:10"))
+    end
   end
 end
