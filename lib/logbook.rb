@@ -1,5 +1,5 @@
 module Logbook
-  VERSION = "0.1.3"
+  VERSION = "0.1.4"
 
   require "logbook/builder"
   require "logbook/page"
