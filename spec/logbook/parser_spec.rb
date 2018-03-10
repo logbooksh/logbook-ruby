@@ -121,6 +121,17 @@ RSpec.describe Logbook::Parser do
     expect(parsed_property).to eq(expected_property)
   end
 
+  it "allows for the file not to finish with a newline" do
+    logbook = <<~LOG
+    [ToDo] My task
+
+    This is my note.
+    LOG
+
+    task_definition, _ = Logbook::Parser.new.parse_with_debug(logbook.chomp)
+    expect(task_definition[:task_definition][:note]).to eq("This is my note.")
+  end
+
   it "ignores unrelated text" do
     logbook = <<~LOG
     This text will be ignored.

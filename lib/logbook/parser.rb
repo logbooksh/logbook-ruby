@@ -7,7 +7,8 @@ module Logbook
     rule(:newline) { match("\n") }
 
     rule(:text) { match("[^\n]") }
-    rule(:text_line) { text.repeat(0) >> newline }
+    rule(:text_line) { text.repeat(1) }
+    rule(:text_line_with_newline) { text.repeat(0) >> newline }
     rule(:label) { match["a-zA-Z"] >> match["a-zA-Z0-9_-"].repeat }
 
     rule(:property_value) { match("[^\\n\\]\\[]").repeat(1) }
@@ -27,19 +28,19 @@ module Logbook
     rule(:status) { str("[") >> label.as(:status) >> str("]") }
     rule(:title) { text.repeat }
 
-    rule(:note_line) { time.absent? >> status.absent? >> property.absent? >> text_line }
+    rule(:note_line) { time.absent? >> status.absent? >> property.absent? >> (text_line_with_newline | text_line)}
     rule(:note) { note_line.repeat }
 
     rule(:log_entry) { time >> whitespace >> newline.maybe >> note.as(:note) }
 
     rule(:task_definition) do
-      status >> whitespace >> title.as(:title) >> str("\n") >>
+      status >> whitespace >> title.as(:title) >> newline >>
       newline.repeat >> property_or_tag_list.as(:properties) >>
       newline.repeat >> note.as(:note)
     end
 
     rule(:task_entry) do
-      time >> whitespace >> status >> whitespace >> title.as(:title) >> str("\n") >>
+      time >> whitespace >> status >> whitespace >> title.as(:title) >> newline >>
       newline.repeat >> property_or_tag_list.as(:properties) >>
       newline.repeat >> note.as(:note)
     end
@@ -50,7 +51,7 @@ module Logbook
         task_entry.as(:task_entry) |
         log_entry.as(:log_entry) |
         property.as(:property) |
-        text_line
+        (text_line_with_newline | text_line)
       ).repeat
     end
 
