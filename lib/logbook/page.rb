@@ -1,39 +1,44 @@
 module Logbook
   class Page
-    attr_accessor :entries, :properties
+    attr_accessor :clock, :entries, :logged_work, :properties
 
     def initialize
+      @clock = Clock.new
       @entries = []
+      @logged_work = {}
     end
 
     def add(entry)
       entries << entry
+      clock.tick(entry) { |tracked_entry, duration| logged_work.store(tracked_entry, duration) }
     end
 
     def entry_at(line_number)
       entries.reverse.find { |entry| entry.line_number <= line_number }
     end
 
-    def total_duration
-      _, duration = entries.inject([nil, Duration.new(0)]) do |(previous_entry, duration), current_entry|
-        if previous_entry && previous_entry.starts_clock?
-          if current_entry.stops_clock?
-            new_duration = Duration.new(duration.minutes + minutes_in_between(previous_entry, current_entry))
-            [current_entry, new_duration]
-          else
-            [previous_entry, duration]
-          end
-        else
-          [current_entry, duration]
-        end
-      end
-
-      duration
+    def logged_time
+      logged_work.map { |entry, duration| duration }.reduce(Duration.new(0), &:+)
     end
 
-    private
-    def minutes_in_between(previous_entry, current_entry)
-      (current_entry.recorded_at.to_time - previous_entry.recorded_at.to_time) / 60
+    def tasks
+      entries.reduce({}) do |tasks, entry|
+        case entry
+        when TaskEntry, TaskDefinition
+          if entry.belongs_to_task?
+            task = tasks[entry.task_id] ||= Task.new(entry.task_id)
+
+            if logged_work.has_key?(entry)
+              task.log_work(entry, logged_work[entry])
+            else
+              task.add_entry(entry)
+            end
+          end
+        else
+        end
+
+        tasks
+      end
     end
   end
 end

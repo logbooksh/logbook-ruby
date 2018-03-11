@@ -5,19 +5,11 @@ module Logbook
     attr_accessor :properties
 
     def recorded_at
-      date = self.properties[DATE_PROPERTY_NAME]
+      date = self.properties[DATE_PROPERTY_NAME].value
       time = self.time
 
       DateTime.parse(date + " " + time)
     rescue ArgumentError
-    end
-
-    def starts_clock?
-      false
-    end
-
-    def stops_clock?
-      true
     end
   end
 end

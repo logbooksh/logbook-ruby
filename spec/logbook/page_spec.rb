@@ -22,9 +22,27 @@ module Logbook
       expect(page.entry_at(13)).to eq(third_entry)
     end
 
-    describe "#total_duration" do
+    describe "tasks" do
       let(:page) { Page.new }
-      let(:properties) { {"Date" => "2018-01-24"} }
+      let(:properties) { {"Date" => Property.new("Date", "2018-01-24"), "ID" => Property.new("ID", "my-task")} }
+
+      it "builds tasks based on task entries using the ID property" do
+        [
+          TaskEntry.new(1, "12:00", "My task", Task::START, properties),
+          TaskEntry.new(2, "12:30", "My task", Task::PAUSE, properties)
+        ].each { |entry| page.add(entry) }
+
+        expect(page.tasks.count).to eq(1)
+        expect(page.tasks["my-task"].title).to eq("My task")
+        expect(page.tasks["my-task"].status).to eq(Task::PAUSE)
+        expect(page.tasks["my-task"].properties["ID"].value).to eq("my-task")
+        expect(page.tasks["my-task"].time_logged).to eq(Duration.new(30))
+      end
+    end
+
+    describe "#logged_time" do
+      let(:page) { Page.new }
+      let(:properties) { {"Date" => Property.new("Date", "2018-01-24")} }
 
       it "computes the total amount of time logged in the page based on entry statuses" do
         [
@@ -32,7 +50,7 @@ module Logbook
           TaskEntry.new(1, "12:30", "", Task::PAUSE, properties)
         ].each { |entry| page.add(entry) }
 
-        expect(page.total_duration).to eq(Duration.new(30))
+        expect(page.logged_time).to eq(Duration.new(30))
       end
 
       it "stops the clock after a Start status" do
@@ -41,7 +59,7 @@ module Logbook
           TaskEntry.new(1, "12:30", "", Task::START, properties)
         ].each { |entry| page.add(entry) }
 
-        expect(page.total_duration).to eq(Duration.new(30))
+        expect(page.logged_time).to eq(Duration.new(30))
       end
 
       it "stops the clock after a Resume status" do
@@ -50,7 +68,7 @@ module Logbook
           TaskEntry.new(1, "12:30", "", Task::RESUME, properties)
         ].each { |entry| page.add(entry) }
 
-        expect(page.total_duration).to eq(Duration.new(30))
+        expect(page.logged_time).to eq(Duration.new(30))
       end
 
       it "restarts the clock after a Reopen status" do
@@ -59,7 +77,7 @@ module Logbook
           TaskEntry.new(1, "12:30", "", Task::REOPEN, properties)
         ].each { |entry| page.add(entry) }
 
-        expect(page.total_duration).to eq(Duration.new(30))
+        expect(page.logged_time).to eq(Duration.new(30))
       end
 
       it "stops the clock after a log entry" do
@@ -70,7 +88,7 @@ module Logbook
         page.add(first_entry)
         page.add(second_entry)
 
-        expect(page.total_duration).to eq(Duration.new(30))
+        expect(page.logged_time).to eq(Duration.new(30))
       end
 
       it "ignores invalid sequences of statuses" do
@@ -81,7 +99,7 @@ module Logbook
           TaskEntry.new(1, "13:30", "", Task::PAUSE, properties),
         ].each { |entry| page.add(entry) }
 
-        expect(page.total_duration).to eq(Duration.new(30))
+        expect(page.logged_time).to eq(Duration.new(30))
       end
     end
   end
