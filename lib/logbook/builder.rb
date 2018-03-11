@@ -2,7 +2,7 @@ require "parslet"
 
 module Logbook
   class Builder < Parslet::Transform
-    rule(tag: simple(:tag)) { Tag.new(tag.to_s) }
+    rule(tag: simple(:tag)) { Property.new(tag.to_s) }
 
     rule(property: {name: simple(:name), value: simple(:value)}) do
       Property.new(name.to_s, value.to_s)
@@ -16,21 +16,19 @@ module Logbook
     end
 
     rule(task_definition: subtree(:task)) do
-      properties =  task[:properties].select { |item| item.instance_of?(Property) }.map { |property| [property.name, property.value] }.to_h
-      tags =  task[:properties].select { |item| item.instance_of?(Tag) }
+      properties =  task[:properties].map { |property| [property.name, property] }.to_h
       line_number, _ = task[:status].line_and_column
       note = task[:note].to_s.strip.chomp
 
-      TaskDefinition.new(line_number, task[:title].to_s, task[:status].to_s, properties, tags, note)
+      TaskDefinition.new(line_number, task[:title].to_s, task[:status].to_s, properties, note)
     end
 
     rule(task_entry: subtree(:task)) do
-      properties =  task[:properties].select { |item| item.instance_of?(Property) }.map { |property| [property.name, property.value] }.to_h
-      tags =  task[:properties].select { |item| item.instance_of?(Tag) }
+      properties =  task[:properties].map { |property| [property.name, property] }.to_h
       line_number, _ = task[:status].line_and_column
       note = task[:note].to_s.strip.chomp
 
-      TaskEntry.new(line_number, task[:time].to_s, task[:title].to_s, task[:status].to_s, properties, tags, note)
+      TaskEntry.new(line_number, task[:time].to_s, task[:title].to_s, task[:status].to_s, properties, note)
     end
 
     def self.build(contents)
@@ -40,7 +38,7 @@ module Logbook
       logbook_page = entries_and_properties.inject(Page.new) do |page, entry_or_property|
         case entry_or_property
         when Property
-          current_properties[entry_or_property.name] = entry_or_property.value
+          current_properties[entry_or_property.name] = entry_or_property
           page
         when TaskDefinition, TaskEntry
           entry_or_property.merge_page_properties(current_properties)
