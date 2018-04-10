@@ -1,15 +1,26 @@
-# Logbook::Parser
+# logbook-ruby
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/logbook/parser`. To experiment with that code, run `bin/console` for an interactive prompt.
+`logbook-ruby` is a Ruby library providing a parser for Logbook files.
 
-TODO: Delete this and the text above, and describe your gem
+## On Logbooks
+
+Logbooks are plain text files used to capture thoughts and activities as they
+occur throughout the day without interrupting flow as much as possible.
+
+The rather minimalistic syntax is optimized for readability and quick editing
+without the need for anything fancier than a good text editor.
+
+To find out more about logbooks and the logbook file format, check out the
+documentation of [the vim plugin](https://github.com/logbooksh/vim-logbook).
 
 ## Installation
+
+`logbook-ruby` was tested on Ruby 2.4.
 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'logbook-parser'
+gem 'logbook-ruby'
 ```
 
 And then execute:
@@ -18,18 +29,23 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install logbook-parser
+    $ gem install logbook-ruby
 
 ## Usage
 
-TODO: Write usage instructions here
+```ruby
+require 'logbook-ruby`
 
-## Development
+file_path = "my-logbook.logbook"
+file_contents = File.read(file_path)
+logbook_page = Logbook::Builder.build(file_contents)
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+p logbook_page.properties
+p logbook_page.entries
+p logbook_page.tasks
+```
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+## License
 
-## Contributing
-
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/logbook-parser.
+`logbook-ruby` is under the Apache License 2.0. See [`LICENSE`](LICENSE) for more
+information.
