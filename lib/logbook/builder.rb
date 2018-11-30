@@ -17,7 +17,7 @@ module Logbook
     end
 
     rule(task_definition: subtree(:task)) do
-      properties =  task[:properties].select { |item| item.instance_of?(Property) }.map { |property| [property.name, property] }.to_h
+      properties =  task[:properties].select { |item| item.instance_of?(Property) }.map { |property| [property.name, property.value] }.to_h
       tags = Set.new(task[:properties].select { |item| item.instance_of?(Tag) }).map { |tag| tag.label }
       line_number, _ = task[:status].line_and_column
       note = task[:note].to_s.strip.chomp
@@ -26,7 +26,7 @@ module Logbook
     end
 
     rule(task_entry: subtree(:task)) do
-      properties =  task[:properties].select { |item| item.instance_of?(Property) }.map { |property| [property.name, property] }.to_h
+      properties =  task[:properties].select { |item| item.instance_of?(Property) }.map { |property| [property.name, property.value] }.to_h
       tags = Set.new(task[:properties].select { |item| item.instance_of?(Tag) }).map { |tag| tag.label }
       line_number, _ = task[:status].line_and_column
       note = task[:note].to_s.strip.chomp
@@ -44,7 +44,7 @@ module Logbook
         logbook_page = entries_and_properties.inject(Page.new) do |page, entry_or_property|
           case entry_or_property
           when Property
-            current_properties[entry_or_property.name] = entry_or_property
+            current_properties[entry_or_property.name] = entry_or_property.value
             page
           when TaskDefinition, TaskEntry
             entry_or_property.merge_page_properties(current_properties)

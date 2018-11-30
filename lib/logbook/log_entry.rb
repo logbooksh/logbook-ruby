@@ -5,7 +5,7 @@ module Logbook
     attr_accessor :properties
 
     def recorded_at
-      date = self.properties[DATE_PROPERTY_NAME].value
+      date = self.properties[DATE_PROPERTY_NAME]
       time = self.time
 
       DateTime.parse(date + " " + time)

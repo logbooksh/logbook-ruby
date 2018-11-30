@@ -11,7 +11,7 @@ module Logbook
         task_one = Task.new("task-1")
         task_two = Task.new("task-2")
 
-        properties = {"Date" => Property.new("Date", "2018-03-23")}
+        properties = {"Date" => "2018-03-23"}
         older_entry = TaskEntry.new(time: "10:00", status: TaskEntry::Status::TODO, properties: properties)
         most_recent_entry = TaskEntry.new(time: "12:00", status: TaskEntry::Status::START, properties: properties)
 
@@ -27,7 +27,7 @@ module Logbook
 
       it "allows any transition between statuses" do
         task = Task.new("task-1")
-        properties = {"Date" => Property.new("Date", "2018-03-23")}
+        properties = {"Date" => "2018-03-23"}
 
         todo_entry = TaskEntry.new(time: "10:00", status: TaskEntry::Status::TODO, properties: properties)
         task.add_entry(todo_entry)

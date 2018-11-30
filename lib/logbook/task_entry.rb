@@ -27,7 +27,7 @@ module Logbook
 
     def belongs_to_task?
       self.properties.has_key?(Task::TASK_ID_PROPERTY) &&
-        self.properties[Task::TASK_ID_PROPERTY].has_value?
+        !self.properties[Task::TASK_ID_PROPERTY].nil?
     end
 
     def merge_page_properties(properties)
@@ -35,7 +35,7 @@ module Logbook
     end
 
     def recorded_at
-      date = self.properties[DATE_PROPERTY_NAME].value
+      date = self.properties[DATE_PROPERTY_NAME]
       time = self.time
 
       DateTime.parse(date + " " + time)
@@ -47,7 +47,7 @@ module Logbook
     end
 
     def task_id
-      self.properties[Task::TASK_ID_PROPERTY].value
+      self.properties[Task::TASK_ID_PROPERTY]
     end
   end
 end

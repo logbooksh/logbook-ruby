@@ -25,7 +25,7 @@ module Logbook
 
     describe "tasks" do
       let(:page) { Page.new }
-      let(:properties) { {"Date" => Property.new("Date", "2018-01-24"), "ID" => Property.new("ID", "my-task")} }
+      let(:properties) { {"Date" => "2018-01-24", "ID" => "my-task"} }
 
       it "builds tasks based on task entries using the ID property" do
         [
@@ -35,14 +35,14 @@ module Logbook
 
         expect(page.tasks.count).to eq(1)
         expect(page.tasks.first.title).to eq("My task")
-        expect(page.tasks.first.properties["ID"].value).to eq("my-task")
+        expect(page.tasks.first.properties["ID"]).to eq("my-task")
         expect(page.tasks.first.logged_time).to eq(Duration.new(30))
       end
     end
 
     describe "#logged_time" do
       let(:page) { Page.new }
-      let(:properties) { {"Date" => Property.new("Date", "2018-01-24")} }
+      let(:properties) { {"Date" => "2018-01-24"} }
 
       it "computes the total amount of time logged in the page based on entry statuses" do
         [
