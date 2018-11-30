@@ -1,8 +1,29 @@
 require "date"
 
 module Logbook
-  class TaskEntry < Struct.new(:line_number, :time, :title, :status, :properties, :note)
+  class TaskEntry
+    attr_accessor :line_number, :note, :properties, :status, :tags, :time, :title
+
     DATE_PROPERTY_NAME = "Date"
+
+    class Status
+      TODO = "Todo"
+      DONE = "Done"
+      PAUSE = "Pause"
+      REOPEN = "Reopen"
+      RESUME = "Resume"
+      START = "Start"
+    end
+
+    def initialize(time:, line_number: 1, title: "", status: Status::TODO, properties: {}, tags: Set.new, note: "")
+      @line_number = line_number
+      @time = time
+      @title = title
+      @status = status
+      @properties = properties
+      @tags = tags
+      @note = note
+    end
 
     def belongs_to_task?
       self.properties.has_key?(Task::TASK_ID_PROPERTY) &&
@@ -22,7 +43,7 @@ module Logbook
     end
 
     def starts_clock?
-      [Task::START, Task::RESUME, Task::REOPEN].include?(self.status)
+      [Status::START, Status::RESUME, Status::REOPEN].include?(self.status)
     end
 
     def task_id

@@ -2,6 +2,10 @@ require "spec_helper"
 require "parslet/convenience"
 
 RSpec.describe Logbook::Parser do
+  it "parses text" do
+    expect(Logbook::Parser.new.parse("This is just a note.")).to eq("This is just a note.")
+  end
+
   it "parses properties" do
     expected_properties = [{property: {name: "Name", value: "Value"}}]
     expect(Logbook::Parser.new.parse("[Name: Value]")).to eq(expected_properties)

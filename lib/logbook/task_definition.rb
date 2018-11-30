@@ -1,5 +1,5 @@
 module Logbook
-  class TaskDefinition < Struct.new(:line_number, :title, :status, :properties, :note)
+  class TaskDefinition < Struct.new(:line_number, :title, :status, :properties, :tags, :note)
     def belongs_to_task?
       self.properties.has_key?(Task::TASK_ID_PROPERTY) &&
         self.properties[Task::TASK_ID_PROPERTY].has_value?

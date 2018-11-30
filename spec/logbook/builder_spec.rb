@@ -53,7 +53,7 @@ RSpec.describe Logbook::Builder do
       expect(task_entry.status).to eq("Start")
       expect(task_entry.time).to eq("12:10")
       expect(task_entry.properties["ID"].value).to eq("uuid-2345")
-      expect(task_entry.properties["other-tag"].is_tag?).to be_truthy
+      expect(task_entry.tags).to include(Logbook::Tag.new("other-tag"))
       expect(task_entry.note).to eq("This is my note.")
     end
 
@@ -77,6 +77,11 @@ RSpec.describe Logbook::Builder do
 
     it "computes the recorded date and time of each entry" do
       expect(task_entry.recorded_at).to eq(DateTime.parse("2018-01-20 12:10"))
+    end
+
+    it "builds an empty page if there are no entries" do
+      page = Logbook::Builder.build("Date: 29/30.")
+      expect(page.entries).to be_empty
     end
   end
 end

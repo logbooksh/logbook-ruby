@@ -35,10 +35,11 @@ module Logbook
             end
           end
         else
+          # ignore
         end
 
         tasks
-      end
+      end.values
     end
   end
 end

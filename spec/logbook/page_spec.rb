@@ -1,13 +1,14 @@
 require "spec_helper"
+require "set"
 
 module Logbook
   RSpec.describe Page do
     it "knows which entry is at a given line" do
       page = Page.new
 
-      first_entry = TaskEntry.new(1)
-      second_entry = TaskEntry.new(5)
-      third_entry = TaskEntry.new(9)
+      first_entry = TaskEntry.new(line_number: 1, time: "")
+      second_entry = TaskEntry.new(line_number: 5, time: "")
+      third_entry = TaskEntry.new(line_number: 9, time: "")
 
       page.add(first_entry)
       page.add(second_entry)
@@ -28,15 +29,14 @@ module Logbook
 
       it "builds tasks based on task entries using the ID property" do
         [
-          TaskEntry.new(1, "12:00", "My task", Task::START, properties),
-          TaskEntry.new(2, "12:30", "My task", Task::PAUSE, properties)
+          TaskEntry.new(time: "12:00", title: "My task", status: TaskEntry::Status::START, properties: properties),
+          TaskEntry.new(time: "12:30", title: "My task", status: TaskEntry::Status::PAUSE, properties: properties)
         ].each { |entry| page.add(entry) }
 
         expect(page.tasks.count).to eq(1)
-        expect(page.tasks["my-task"].title).to eq("My task")
-        expect(page.tasks["my-task"].status).to eq(Task::PAUSE)
-        expect(page.tasks["my-task"].properties["ID"].value).to eq("my-task")
-        expect(page.tasks["my-task"].time_logged).to eq(Duration.new(30))
+        expect(page.tasks.first.title).to eq("My task")
+        expect(page.tasks.first.properties["ID"].value).to eq("my-task")
+        expect(page.tasks.first.logged_time).to eq(Duration.new(30))
       end
     end
 
@@ -46,8 +46,8 @@ module Logbook
 
       it "computes the total amount of time logged in the page based on entry statuses" do
         [
-          TaskEntry.new(1, "12:00", "", Task::START, properties),
-          TaskEntry.new(1, "12:30", "", Task::PAUSE, properties)
+          TaskEntry.new(time: "12:00", status: TaskEntry::Status::START, properties: properties),
+          TaskEntry.new(time: "12:30", status: TaskEntry::Status::PAUSE, properties: properties)
         ].each { |entry| page.add(entry) }
 
         expect(page.logged_time).to eq(Duration.new(30))
@@ -55,8 +55,8 @@ module Logbook
 
       it "stops the clock after a Start status" do
         [
-          TaskEntry.new(1, "12:00", "", Task::START, properties),
-          TaskEntry.new(1, "12:30", "", Task::START, properties)
+          TaskEntry.new(time: "12:00", status: TaskEntry::Status::START, properties: properties),
+          TaskEntry.new(time: "12:30", status: TaskEntry::Status::START, properties: properties)
         ].each { |entry| page.add(entry) }
 
         expect(page.logged_time).to eq(Duration.new(30))
@@ -64,8 +64,8 @@ module Logbook
 
       it "stops the clock after a Resume status" do
         [
-          TaskEntry.new(1, "12:00", "", Task::START, properties),
-          TaskEntry.new(1, "12:30", "", Task::RESUME, properties)
+          TaskEntry.new(time: "12:00", status: TaskEntry::Status::START, properties: properties),
+          TaskEntry.new(time: "12:30", status: TaskEntry::Status::RESUME, properties: properties)
         ].each { |entry| page.add(entry) }
 
         expect(page.logged_time).to eq(Duration.new(30))
@@ -73,15 +73,15 @@ module Logbook
 
       it "restarts the clock after a Reopen status" do
         [
-          TaskEntry.new(1, "12:00", "", Task::START, properties),
-          TaskEntry.new(1, "12:30", "", Task::REOPEN, properties)
+          TaskEntry.new(time: "12:00", status: TaskEntry::Status::START, properties: properties),
+          TaskEntry.new(time: "12:30", status: TaskEntry::Status::REOPEN, properties: properties)
         ].each { |entry| page.add(entry) }
 
         expect(page.logged_time).to eq(Duration.new(30))
       end
 
       it "stops the clock after a log entry" do
-        first_entry = TaskEntry.new(1, "12:00", "", Task::START, properties)
+        first_entry = TaskEntry.new(time: "12:00", status: TaskEntry::Status::START, properties: properties)
         second_entry = LogEntry.new(1, "12:30", "")
         second_entry.properties = properties
 
@@ -93,10 +93,10 @@ module Logbook
 
       it "ignores invalid sequences of statuses" do
         [
-          TaskEntry.new(1, "12:00", "", Task::PAUSE, properties),
-          TaskEntry.new(1, "12:30", "", Task::DONE, properties),
-          TaskEntry.new(1, "13:00", "", Task::RESUME, properties),
-          TaskEntry.new(1, "13:30", "", Task::PAUSE, properties),
+          TaskEntry.new(time: "12:00", status: TaskEntry::Status::START, properties: properties),
+          TaskEntry.new(time: "12:30", status: TaskEntry::Status::PAUSE, properties: properties),
+          TaskEntry.new(time: "13:00", status: TaskEntry::Status::DONE, properties: properties),
+          TaskEntry.new(time: "13:30", status: TaskEntry::Status::RESUME, properties: properties),
         ].each { |entry| page.add(entry) }
 
         expect(page.logged_time).to eq(Duration.new(30))
