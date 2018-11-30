@@ -18,7 +18,7 @@ module Logbook
 
     rule(task_definition: subtree(:task)) do
       properties =  task[:properties].select { |item| item.instance_of?(Property) }.map { |property| [property.name, property] }.to_h
-      tags = Set.new(task[:properties].select { |item| item.instance_of?(Tag) })
+      tags = Set.new(task[:properties].select { |item| item.instance_of?(Tag) }).map { |tag| tag.label }
       line_number, _ = task[:status].line_and_column
       note = task[:note].to_s.strip.chomp
 
@@ -27,7 +27,7 @@ module Logbook
 
     rule(task_entry: subtree(:task)) do
       properties =  task[:properties].select { |item| item.instance_of?(Property) }.map { |property| [property.name, property] }.to_h
-      tags = Set.new(task[:properties].select { |item| item.instance_of?(Tag) })
+      tags = Set.new(task[:properties].select { |item| item.instance_of?(Tag) }).map { |tag| tag.label }
       line_number, _ = task[:status].line_and_column
       note = task[:note].to_s.strip.chomp
 

@@ -53,7 +53,7 @@ RSpec.describe Logbook::Builder do
       expect(task_entry.status).to eq("Start")
       expect(task_entry.time).to eq("12:10")
       expect(task_entry.properties["ID"].value).to eq("uuid-2345")
-      expect(task_entry.tags).to include(Logbook::Tag.new("other-tag"))
+      expect(task_entry.tags).to include("other-tag")
       expect(task_entry.note).to eq("This is my note.")
     end
 
